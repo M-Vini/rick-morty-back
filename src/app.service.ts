@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import fetch from 'node-fetch';
+import { PrismaService } from './prisma/prisma.service';
 
 type Location = {
-  name: string | null;
-  url: string | null;
+  name?: string;
+  url?: string;
 }
 
 type Origin = {
-  name: string | null;
-  url: string | null;
+  name?: string;
+  url?: string;
 }
 
 interface ICharacter {
@@ -26,7 +27,10 @@ interface ICharacter {
 @Injectable()
 export class AppService {
 
-  constructor(private configService: ConfigService) { }
+  constructor(
+    private configService: ConfigService,
+    private prisma: PrismaService
+  ) { }
 
   async getCharacters() {
     const urlBaseApi = this.configService.get('URL_BASE_API');
@@ -34,19 +38,18 @@ export class AppService {
     let allCharacters: ICharacter[] = [];
     let nextPage: string | null = `${urlBaseApi}/character`;
 
-    for (let i = 1; i <= 10 && nextPage; i++) {
-    // while(nextPage){
+    for (let i = 1; i <= 20 && nextPage; i++) {
       const req = await fetch(nextPage);
 
-      if(!req.ok){
+      if (!req.ok) {
         throw new Error(`Erro ao buscar personagens: ${req.statusText}`);
       }
-      
-      const data:any = await req.json();
+
+      const data: any = await req.json();
 
       console.log(data)
 
-      if(!data.results || !data.info){
+      if (!data.results || !data.info) {
         throw new Error('Dados inválidos recebidos da API');
       }
 

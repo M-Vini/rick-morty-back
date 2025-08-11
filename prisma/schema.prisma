@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Origin {
+  id         String      @id @map("_id") @db.ObjectId
+  name       String?
+  url        String?
+  characters Character[]
+
+  @@map("origin")
+}
+
+model Location {
+  id         String      @id @map("_id") @db.ObjectId
+  name       String?
+  url        String?
+  characters Character[]
+
+  @@map("location")
+}
+
+model Character {
+  id         String    @id @map("_id") @db.ObjectId
+  externalId Int       @unique
+  name       String
+  status     String
+  species    String
+  gender     String
+  originId   String?   @db.ObjectId
+  origin     Origin?   @relation(fields: [originId], references: [id])
+  locationId String?   @db.ObjectId
+  location   Location? @relation(fields: [locationId], references: [id])
+  image      String
+
+  @@map("characters")
+}
